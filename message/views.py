@@ -26,3 +26,8 @@ class LoginView(ObtainAuthToken):
         token = Token.objects.get(key=response.data['token'])
         return Response({
             'token': token.key,'user_id': token.user_id})
+
+class LogoutView(APIView):
+    def post(self, request):
+        request.auth.delete()
+        return Response(status=status.HTTP_200_OK)
