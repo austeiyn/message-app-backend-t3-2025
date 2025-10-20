@@ -7,7 +7,7 @@ class Chatroom(models.Model):
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    receiver = models.ManyToManyField(User, related_name="message_receivers", null=True, blank=True)
+    receiver = models.ManyToManyField(User, related_name="message_receivers", blank=True)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     chat_room = models.ForeignKey(Chatroom, on_delete=models.CASCADE)
