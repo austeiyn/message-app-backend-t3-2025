@@ -24,7 +24,7 @@ from message.views import send_message, LoginView, LogoutView
 
 router = DefaultRouter()
 
-router.register(r'chat_rooms', Chat_roomViewSet, basename='chat_room')
+router.register(r'chat_rooms', Chat_roomViewSet, basename='chat_rooms')
 router.register(r'messages', MessageViewSet, basename='message')
 router.register(r'login', LoginView, basename='login')
 

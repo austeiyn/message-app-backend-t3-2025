@@ -4,6 +4,7 @@ from django.db import models
 # Create your models here.
 class Chatroom(models.Model):
     name = models.CharField(max_length=100)
+    users=models.ManyToManyField(User, related_name="chatroom_users")
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -91,3 +91,38 @@ class LogoutAPITest(APITestCase):
         # No token — unauthorized
         response = self.client.post(self.logout_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class ChatRoomViewSetTest(APITestCase):
+    def setUp(self):
+        # Create users
+        self.user1 = User.objects.create_user(username='user1', password='pass123')
+        self.user2 = User.objects.create_user(username='user2', password='pass123')
+
+        # Create chat rooms
+        self.chatroom1 = Chatroom.objects.create(name='Room A')
+        self.chatroom1.users.add(self.user1)
+
+        self.chatroom2 = Chatroom.objects.create(name='Room B')
+        self.chatroom2.users.add(self.user2)
+
+        self.chatroom3 = Chatroom.objects.create(name='Room C')
+        self.chatroom3.users.add(self.user1, self.user2)
+
+        self.url = reverse('chat_room-list')  # standard DRF naming for ViewSets
+
+    def test_authenticated_user_sees_only_their_rooms(self):
+        """User should only see chat rooms they belong to."""
+        self.client.login(username='user1', password='pass123')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        room_names = [room['name'] for room in response.data]
+        self.assertIn('Room A', room_names)
+        self.assertIn('Room C', room_names)
+        self.assertNotIn('Room B', room_names)
+
+    def test_unauthenticated_user_cannot_access(self):
+        """Unauthenticated users should get 401."""
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
