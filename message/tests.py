@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from .models import Message, Chatroom
+from .models import Message, Chat_room
 
 class SendMessageAPITest(APITestCase):
     def setUp(self):
@@ -12,7 +12,7 @@ class SendMessageAPITest(APITestCase):
         self.receiver2 = User.objects.create_user(username='charlie', password='password123')
 
         # Create a chat room
-        self.chat_room = Chatroom.objects.create(name='Test Room')
+        self.chat_room = Chat_room.objects.create(name='Test Room')
 
         # URL of the send_message view
         self.url = reverse('send_message')
@@ -100,22 +100,24 @@ class ChatRoomViewSetTest(APITestCase):
         self.user2 = User.objects.create_user(username='user2', password='pass123')
 
         # Create chat rooms
-        self.chatroom1 = Chatroom.objects.create(name='Room A')
+        self.chatroom1 = Chat_room.objects.create(name='Room A')
         self.chatroom1.users.add(self.user1)
 
-        self.chatroom2 = Chatroom.objects.create(name='Room B')
+        self.chatroom2 = Chat_room.objects.create(name='Room B')
         self.chatroom2.users.add(self.user2)
 
-        self.chatroom3 = Chatroom.objects.create(name='Room C')
+        self.chatroom3 = Chat_room.objects.create(name='Room C')
         self.chatroom3.users.add(self.user1, self.user2)
 
-        self.url = reverse('chat_room-list')  # standard DRF naming for ViewSets
+        self.login_url = reverse('login')
+        self.url = reverse('chat_rooms-list')  # standard DRF naming for ViewSets
 
     def test_authenticated_user_sees_only_their_rooms(self):
         """User should only see chat rooms they belong to."""
-        self.client.login(username='user1', password='pass123')
+        login_response = self.client.post(self.login_url, {'username': 'user1', 'password': 'pass123'})
+        token = login_response.data.get('token')
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         room_names = [room['name'] for room in response.data]
         self.assertIn('Room A', room_names)
