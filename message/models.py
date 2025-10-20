@@ -2,13 +2,16 @@ from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
-class Chatroom(models.Model):
+class Chat_room(models.Model):
     name = models.CharField(max_length=100)
-    users=models.ManyToManyField(User, related_name="chatroom_users")
+    users = models.ManyToManyField(User, related_name="chat_rooms")
+
+    def __str__(self):
+        return self.name
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    receiver = models.ManyToManyField(User, related_name="message_receivers", blank=True)
+    receiver = models.ManyToManyField(User, related_name="message_receivers", null=True, blank=True)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    chat_room = models.ForeignKey(Chatroom, on_delete=models.CASCADE)
+    chat_room = models.ForeignKey(Chat_room, on_delete=models.CASCADE)
