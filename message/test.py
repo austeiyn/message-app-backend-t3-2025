@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from .models import Message, Chat_room
+from .models import Message, Chatroom
 
 
 class SendMessageAPITest(APITestCase):
@@ -13,7 +13,7 @@ class SendMessageAPITest(APITestCase):
         self.receiver2 = User.objects.create_user(username='charlie', password='password123')
 
         # Create a chat room
-        self.chat_room = Chat_room.objects.create(name='Test Room')
+        self.chat_room = Chatroom.objects.create(name='Test Room')
 
         # URL of the send_message view
         self.url = reverse('send_message')
@@ -54,3 +54,18 @@ class SendMessageAPITest(APITestCase):
         response = self.client.post(self.url, self.invalid_payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('content', response.data)
+
+class LoginApiTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.url = reverse('login')
+
+    def test_login_success(self):
+        response = self.client.post(self.url, {'username': 'testuser', 'password': 'testpass'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
+
+    def test_login_invalid(self):
+        response = self.client.post(self.url, {'username': 'testuser', 'password': 'wrongpass'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('non_field_errors', response.data)

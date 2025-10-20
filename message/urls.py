@@ -14,19 +14,22 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.contrib.auth.views import LoginView
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from message.viewsets import Chat_roomViewSet, MessageViewSet
 
-from message.views import send_message
+from message.views import send_message, LoginView
 
 router = DefaultRouter()
 
 router.register(r'chat_rooms', Chat_roomViewSet, basename='chat_room')
 router.register(r'messages', MessageViewSet, basename='message')
+router.register(r'login', LoginView, basename='login')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('send_message/', send_message, name='send_message'),
+    path('login/', LoginView.as_view(), name='login')
 ]
